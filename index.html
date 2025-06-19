@@ -1,0 +1,591 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Belgrade Apartment Insights</title>
+    
+    <!-- Using Font Awesome for icons from a CDN -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+    <style>
+        /* --- Global Styles & CSS Variables --- */
+        :root {
+            --primary-color: #003366; /* Deep Belgrade Blue */
+            --secondary-color: #D4AF37; /* Gold Accent */
+            --bg-color: #f4f7f9;
+            --card-bg: #ffffff;
+            --text-color: #333333;
+            --light-text: #666666;
+            --border-color: #e0e0e0;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.6;
+        }
+
+        /* --- Main App Container --- */
+        .app-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 1rem;
+        }
+
+        /* --- Header --- */
+        header {
+            text-align: center;
+            margin-bottom: 1.5rem;
+            padding: 1rem;
+            background: var(--card-bg);
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+        }
+
+        header h1 {
+            color: var(--primary-color);
+            font-size: 1.8rem;
+            margin-bottom: 0.25rem;
+        }
+
+        header p {
+            color: var(--light-text);
+            font-size: 1rem;
+        }
+
+        /* --- Navigation Toggles --- */
+        nav {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 2rem;
+            background-color: var(--card-bg);
+            border-radius: 25px;
+            padding: 0.5rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+
+        .nav-btn {
+            background: transparent;
+            border: none;
+            padding: 0.75rem 1rem;
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--primary-color);
+            cursor: pointer;
+            border-radius: 20px;
+            transition: all 0.3s ease;
+            flex-grow: 1;
+            text-align: center;
+        }
+
+        .nav-btn.active {
+            background-color: var(--primary-color);
+            color: white;
+            box-shadow: 0 4px 12px rgba(0, 51, 102, 0.3);
+        }
+
+        /* --- Content Views --- */
+        .content-view {
+            display: none; /* Hidden by default, JS will show the active one */
+        }
+
+        .content-view.active {
+            display: grid;
+            gap: 1.5rem;
+            /* Mobile-first: 1 column */
+            grid-template-columns: 1fr;
+        }
+
+        /* --- Infographic Card Styling --- */
+        .infographic-card {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 1.5rem;
+            border: 1px solid var(--border-color);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .card-header .icon {
+            font-size: 2rem;
+            color: var(--secondary-color);
+            width: 40px;
+            text-align: center;
+        }
+
+        .card-header h3 {
+            font-size: 1.2rem;
+            color: var(--primary-color);
+        }
+
+        .card-content p {
+            color: var(--light-text);
+        }
+
+        .highlight-data {
+            font-size: 2.2rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            line-height: 1;
+        }
+
+        .highlight-data-small {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary-color);
+        }
+        
+        .highlight-label {
+            font-size: 0.9rem;
+            color: var(--light-text);
+            margin-top: 0.25rem;
+        }
+
+        /* --- Specific Infographic Components --- */
+        
+        /* List with icons */
+        .icon-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .icon-list li {
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .icon-list .fa-solid {
+            color: var(--secondary-color);
+            width: 20px;
+        }
+
+        /* Grid for amenities */
+        .amenities-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+            gap: 1rem;
+            text-align: center;
+        }
+
+        .amenity-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .amenity-item .icon {
+            font-size: 1.8rem;
+            color: var(--primary-color);
+        }
+        .amenity-item span {
+            font-size: 0.8rem;
+            color: var(--light-text);
+        }
+
+        /* Progress Bar for comparisons */
+        .progress-bar-container {
+            width: 100%;
+            background: #e9ecef;
+            border-radius: 20px;
+            height: 25px;
+            overflow: hidden;
+            position: relative;
+        }
+        .progress-bar {
+            background-color: var(--secondary-color);
+            height: 100%;
+            border-radius: 20px 0 0 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--primary-color);
+            font-weight: 600;
+            font-size: 0.8rem;
+            transition: width 1s ease-out;
+        }
+        
+        .comparison-item {
+            margin-top: 1rem;
+        }
+        .comparison-item p {
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+        }
+
+        /* Two-column layout for challenges/opportunities */
+        .dual-column {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 1.5rem;
+        }
+
+        /* --- Footer --- */
+        footer {
+            text-align: center;
+            margin-top: 2rem;
+            padding: 1rem;
+            font-size: 0.8rem;
+            color: var(--light-text);
+        }
+
+        /* --- Media Queries for Larger Screens (Tablet and up) --- */
+        @media (min-width: 768px) {
+            header h1 {
+                font-size: 2.2rem;
+            }
+            .nav-btn {
+                font-size: 1rem;
+                padding: 0.75rem 1.5rem;
+                flex-grow: 0;
+            }
+            .content-view.active {
+                /* 2 columns for tablets */
+                grid-template-columns: repeat(2, 1fr);
+            }
+            .dual-column {
+                 grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        @media (min-width: 1024px) {
+            .content-view.active {
+                /* 3 columns for desktops */
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="app-container">
+        <header>
+            <h1>Belgrade Apartment Rental Insights</h1>
+            <p>A Visual Guide for Renters & Owners</p>
+        </header>
+
+        <nav>
+            <button id="renters-btn" class="nav-btn active">For Renters</button>
+            <button id="owners-btn" class="nav-btn">For Owners</button>
+            <button id="market-btn" class="nav-btn">Market Insights</button>
+        </nav>
+
+        <main>
+            <!-- ======================= -->
+            <!-- == RENTERS VIEW      == -->
+            <!-- ======================= -->
+            <section id="renters-view" class="content-view active">
+                
+                <div class="infographic-card">
+                    <div class="card-header">
+                        <div class="icon"><i class="fa-solid fa-piggy-bank"></i></div>
+                        <h3>Superior Value</h3>
+                    </div>
+                    <div class="card-content">
+                        <div class="highlight-data">€20-€40</div>
+                        <div class="highlight-label">Typical starting price per night</div>
+                        <p>Apartments offer hotel-level quality at hostel-like prices, maximizing your travel budget.</p>
+                        
+                        <div class="comparison-item">
+                            <p>Apartment vs. Hotel</p>
+                            <div class="progress-bar-container">
+                                <div class="progress-bar" style="width: 40%;">Apartment</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="infographic-card">
+                    <div class="card-header">
+                        <div class="icon"><i class="fa-solid fa-hot-tub-person"></i></div>
+                        <h3>Affordable Luxury</h3>
+                    </div>
+                    <div class="card-content">
+                        <p>Enjoy private luxury amenities for less than a visit to a wellness center.</p>
+                        <ul class="icon-list">
+                            <li><i class="fa-solid fa-user-group"></i> 2 people from <strong>€39</strong></li>
+                            <li><i class="fa-solid fa-user-group"></i> 4 people from <strong>€45</strong></li>
+                            <li><i class="fa-solid fa-user-group"></i> 6 people from <strong>€35</strong>/person</li>
+                        </ul>
+                        <p class="highlight-label">Common prices for apartments with a private jacuzzi.</p>
+                    </div>
+                </div>
+
+                <div class="infographic-card">
+                    <div class="card-header">
+                        <div class="icon"><i class="fa-solid fa-key"></i></div>
+                        <h3>Total Privacy & Freedom</h3>
+                    </div>
+                    <div class="card-content">
+                        <p>Your own space, your own rules. No shared facilities, no set schedules. Ideal for couples, families, and groups seeking intimacy and independence.</p>
+                    </div>
+                </div>
+
+                <div class="infographic-card">
+                    <div class="card-header">
+                        <div class="icon"><i class="fa-solid fa-square-check"></i></div>
+                        <h3>Fully Equipped</h3>
+                    </div>
+                    <div class="card-content">
+                        <p>Everything you need for a comfortable stay is included. Common amenities:</p>
+                        <div class="amenities-grid">
+                            <div class="amenity-item"><i class="icon fa-solid fa-wifi"></i><span>Wi-Fi</span></div>
+                            <div class="amenity-item"><i class="icon fa-solid fa-tv"></i><span>Cable TV</span></div>
+                            <div class="amenity-item"><i class="icon fa-solid fa-snowflake"></i><span>AC</span></div>
+                            <div class="amenity-item"><i class="icon fa-solid fa-kitchen-set"></i><span>Kitchen</span></div>
+                            <div class="amenity-item"><i class="icon fa-solid fa-car"></i><span>Parking</span></div>
+                            <div class="amenity-item"><i class="icon fa-solid fa-shirt"></i><span>Washer</span></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="infographic-card">
+                    <div class="card-header">
+                        <div class="icon"><i class="fa-solid fa-map-location-dot"></i></div>
+                        <h3>Perfect for Any Trip</h3>
+                    </div>
+                    <div class="card-content">
+                        <ul class="icon-list">
+                            <li><i class="fa-solid fa-heart"></i><strong>Romantic Getaways</strong> (Jacuzzi, privacy)</li>
+                            <li><i class="fa-solid fa-briefcase"></i><strong>Business Travel</strong> (Convenience, Wi-Fi)</li>
+                            <li><i class="fa-solid fa-camera-retro"></i><strong>Tourism</strong> (Proximity to sights)</li>
+                            <li><i class="fa-solid fa-champagne-glasses"></i><strong>Celebrations</strong> (Large party spaces)</li>
+                            <li><i class="fa-solid fa-circle-plus"></i><strong>Health & Wellness</strong> (Relaxation)</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="infographic-card">
+                    <div class="card-header">
+                        <div class="icon"><i class="fa-solid fa-calendar-days"></i></div>
+                        <h3>Easy & Flexible Booking</h3>
+                    </div>
+                     <div class="card-content">
+                        <p>The "Stan na dan" (apartment for a day) model makes short-term stays simple.</p>
+                        <ul class="icon-list">
+                           <li><i class="fa-solid fa-computer-mouse"></i>Easy online booking systems.</li>
+                           <li><i class="fa-solid fa-bolt"></i>Last-minute reservations often available.</li>
+                           <li><i class="fa-solid fa-magnifying-glass"></i>Advanced filters for pets, smoking, parking etc.</li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ======================= -->
+            <!-- == OWNERS VIEW       == -->
+            <!-- ======================= -->
+            <section id="owners-view" class="content-view">
+
+                <div class="infographic-card">
+                    <div class="card-header">
+                        <div class="icon"><i class="fa-solid fa-arrow-trend-up"></i></div>
+                        <h3>High & Growing Demand</h3>
+                    </div>
+                    <div class="card-content">
+                        <p>The "Stan na dan" concept is booming. Belgrade is Serbia's top tourist hub.</p>
+                        <div style="text-align: center; margin-top: 1rem;">
+                            <div class="highlight-data-small">>50%</div>
+                            <div class="highlight-label">of foreign visitor stays in Serbia happen in Belgrade.</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="infographic-card">
+                    <div class="card-header">
+                        <div class="icon"><i class="fa-solid fa-bullhorn"></i></div>
+                        <h3>Reach a Wide Audience</h3>
+                    </div>
+                    <div class="card-content">
+                        <p>Listing platforms offer professional support and visibility.</p>
+                        <ul class="icon-list">
+                            <li><i class="fa-solid fa-magnifying-glass-chart"></i>Advanced search filters help guests find you.</li>
+                            <li><i class="fa-solid fa-handshake-angle"></i>Dedicated service encourages repeat bookings.</li>
+                            <li><i class="fa-solid fa-calendar-check"></i>Regularly updated calendars ensure efficiency.</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="infographic-card">
+                    <div class="card-header">
+                        <div class="icon"><i class="fa-solid fa-tags"></i></div>
+                        <h3>Dynamic Pricing Power</h3>
+                    </div>
+                    <div class="card-content">
+                        <p>You control the price based on demand, amenities, and stay duration.</p>
+                        <ul class="icon-list">
+                            <li><i class="fa-solid fa-arrow-down-short-wide"></i>Offer discounts for longer stays.</li>
+                            <li><i class="fa-solid fa-calendar-star"></i>Increase prices for peak times like New Year's Eve (often +50% or more).</li>
+                            <li><i class="fa-solid fa-sliders"></i>Adjust based on location, size, and features.</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="infographic-card">
+                    <div class="card-header">
+                        <div class="icon"><i class="fa-solid fa-city"></i></div>
+                        <h3>Leverage Belgrade's Appeal</h3>
+                    </div>
+                    <div class="card-content">
+                        <p>The city's reputation as a vibrant, 24/7 destination attracts a diverse mix of visitors all year round.</p>
+                        <div class="amenities-grid">
+                            <div class="amenity-item"><i class="icon fa-solid fa-martini-glass"></i><span>Nightlife</span></div>
+                            <div class="amenity-item"><i class="icon fa-solid fa-landmark"></i><span>Culture</span></div>
+                            <div class="amenity-item"><i class="icon fa-solid fa-lightbulb"></i><span>Business</span></div>
+                            <div class="amenity-item"><i class="icon fa-solid fa-futbol"></i><span>Sports</span></div>
+                        </div>
+                    </div>
+                </div>
+
+            </section>
+
+            <!-- ======================= -->
+            <!-- == MARKET VIEW       == -->
+            <!-- ======================= -->
+            <section id="market-view" class="content-view">
+                <div class="infographic-card">
+                    <div class="card-header">
+                        <div class="icon"><i class="fa-solid fa-users"></i></div>
+                        <h3>Key Tourist Segments</h3>
+                    </div>
+                    <div class="card-content">
+                        <div class="comparison-item">
+                            <p>Business Travelers</p>
+                            <div class="progress-bar-container">
+                                <div class="progress-bar" style="width: 60%;">~60%</div>
+                            </div>
+                            <small class="highlight-label">Well-educated, good consumers, act as key promoters.</small>
+                        </div>
+                        <div class="comparison-item">
+                             <p>Other Key Groups</p>
+                            <ul class="icon-list" style="margin-top: 0.5rem;">
+                                <li><i class="fa-solid fa-mobile-screen-button"></i><strong>Younger Visitors:</strong> Attracted to nightlife.</li>
+                                <li><i class="fa-solid fa-palette"></i><strong>Cultural Tourists:</strong> High-spending, loyal.</li>
+                                <li><i class="fa-solid fa-person-walking-with-cane"></i><strong>Older Travelers:</strong> Growing segment with more free time.</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="infographic-card">
+                    <div class="card-header">
+                        <div class="icon"><i class="fa-solid fa-landmark-flag"></i></div>
+                        <h3>Rich Cultural Infrastructure</h3>
+                    </div>
+                    <div class="card-content">
+                        <p>Belgrade is a treasure trove of history and culture.</p>
+                        <div style="display: flex; justify-content: space-around; text-align: center; margin-top: 1rem;">
+                            <div>
+                                <div class="highlight-data">333</div>
+                                <div class="highlight-label">Cultural Properties</div>
+                            </div>
+                             <div>
+                                <div class="highlight-data">50+</div>
+                                <div class="highlight-label">Annual Events</div>
+                            </div>
+                        </div>
+                        <p style="margin-top: 1rem;">Includes landmarks like Belgrade Fortress, Temple of Saint Sava, and major festivals like FEST and Beer Fest.</p>
+                    </div>
+                </div>
+
+                <div class="infographic-card">
+                    <div class="card-header">
+                        <div class="icon"><i class="fa-solid fa-chart-line"></i></div>
+                        <h3>Market Trends</h3>
+                    </div>
+                    <div class="card-content">
+                        <ul class="icon-list">
+                            <li><i class="fa-solid fa-suitcase-rolling"></i>Shift from mass tourism to tailor-made trips.</li>
+                            <li><i class="fa-solid fa-calendar-week"></i>Increasing demand for short breaks & weekend trips.</li>
+                            <li><i class="fa-solid fa-globe"></i>Growing importance of online tech for booking and comparison.</li>
+                            <li><i class="fa-solid fa-star"></i>Desire for "atmosphere" and unique experiences.</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="infographic-card" style="grid-column: 1 / -1;"> <!-- Spans all columns -->
+                    <div class="card-header">
+                         <div class="icon"><i class="fa-solid fa-magnifying-glass-chart"></i></div>
+                        <h3>Growth Factors</h3>
+                    </div>
+                    <div class="card-content dual-column">
+                        <div>
+                            <h4><i class="fa-solid fa-lightbulb"></i> Opportunities</h4>
+                             <ul class="icon-list">
+                                <li><i class="fa-solid fa-compass-drafting"></i>Develop new, innovative tourism products.</li>
+                                <li><i class="fa-solid fa-water"></i>Utilize riverfronts ("Belgrade on the rivers").</li>
+                                <li><i class="fa-solid fa-earth-europe"></i>Position as a "new, undiscovered" destination.</li>
+                            </ul>
+                        </div>
+                        <div>
+                             <h4><i class="fa-solid fa-triangle-exclamation"></i> Challenges</h4>
+                             <ul class="icon-list">
+                                <li><i class="fa-solid fa-link-slash"></i>Lack of cooperation between sectors.</li>
+                                <li><i class="fa-solid fa-database"></i>Need for better data collection on tourists.</li>
+                                <li><i class="fa-solid fa-road-barrier"></i>Insufficient awareness of heritage value in tourism.</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+            </section>
+        </main>
+        
+        <footer>
+            <p>Visual data summary based on market research for Belgrade apartments. For informational purposes only.</p>
+        </footer>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const navButtons = document.querySelectorAll('.nav-btn');
+            const contentviews = document.querySelectorAll('.content-view');
+
+            // Function to handle view switching
+            function switchView(event) {
+                const targetId = event.currentTarget.id; // e.g., 'renters-btn'
+                const viewId = targetId.replace('-btn', '-view'); // e.g., 'renters-view'
+
+                // Update button active state
+                navButtons.forEach(btn => {
+                    btn.classList.remove('active');
+                });
+                event.currentTarget.classList.add('active');
+
+                // Update content view visibility
+                contentviews.forEach(view => {
+                    if (view.id === viewId) {
+                        view.classList.add('active');
+                    } else {
+                        view.classList.remove('active');
+                    }
+                });
+            }
+
+            // Add event listeners to all navigation buttons
+            navButtons.forEach(button => {
+                button.addEventListener('click', switchView);
+            });
+
+            // Set initial state (Renters view is active by default in HTML)
+            // No extra JS needed for initial state as it's handled by CSS classes.
+        });
+    </script>
+</body>
+</html>
